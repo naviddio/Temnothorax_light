@@ -1,0 +1,137 @@
+---
+title: "Ant light regime analysis"
+author: "Doering, Prebus"
+date: "06/01/2026"
+output: html_document
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r, echo=TRUE, error=FALSE, warning=FALSE, message=FALSE}
+dat <- read.csv("Circadian_Table_S1.csv", header=T)
+complete_dat<-na.omit(dat)
+complete_dat$Treatment<-as.factor(complete_dat$Treatment)
+```
+
+
+## Test for differences beween treatments 
+```{r, echo=TRUE, error=FALSE, warning=FALSE, message=FALSE}
+library(nlme)
+complete_dat$Treatment<-relevel(complete_dat$Treatment,"Dark")
+m1 <- lme(circadian_strength ~ Treatment ,random=~1|Origin/Species,data=complete_dat)
+summary(m1)
+complete_dat$Treatment<-relevel(complete_dat$Treatment,"LD")
+m1 <- lme(circadian_strength ~ Treatment ,random=~1|Origin/Species,data=complete_dat)
+summary(m1)
+
+
+# test for differences in ultradian rhythm strength 
+complete_dat$Treatment<-relevel(complete_dat$Treatment,"Dark")
+m1 <- lme(ultradian_strength ~ Treatment ,random=~1|Origin/Species,data=complete_dat)
+summary(m1)
+complete_dat$Treatment<-relevel(complete_dat$Treatment,"LD")
+m1 <- lme(ultradian_strength ~ Treatment ,random=~1|Origin/Species,data=complete_dat)
+summary(m1)
+
+
+# test for differences in the dominant period of ultradian rhythms 
+complete_dat$Treatment<-relevel(complete_dat$Treatment,"Dark")
+m1 <- lme(ultradian_period ~ Treatment ,random=~1|Origin/Species,data=complete_dat)
+summary(m1)
+complete_dat$Treatment<-relevel(complete_dat$Treatment,"LD")
+m1 <- lme(ultradian_period ~ Treatment ,random=~1|Origin/Species,data=complete_dat)
+summary(m1)
+
+
+# test for correlation between circadian strength metrics 
+
+dat <- read.csv('Circadian_Table_S1.csv', header=T)
+
+cor.test(dat$circadian_strength,dat$transformed_cosinor_amplitude)
+
+```
+
+## Test for differences between treatments (include only colonies confirmed to have larvae)
+```{r, echo=TRUE, error=FALSE, warning=FALSE, message=FALSE}
+dat <- read.csv("Circadian_Table_S1.csv", header=T)
+complete_dat<-na.omit(dat)
+complete_dat <- subset(complete_dat, Larvae == "Yes") 
+complete_dat$Treatment<-as.factor(complete_dat$Treatment)
+
+complete_dat$Treatment<-relevel(complete_dat$Treatment,"Dark")
+m1 <- lme(circadian_strength ~ Treatment ,random=~1|Origin/Species,data=complete_dat)
+summary(m1)
+complete_dat$Treatment<-relevel(complete_dat$Treatment,"LD")
+m1 <- lme(circadian_strength ~ Treatment ,random=~1|Origin/Species,data=complete_dat)
+summary(m1)
+
+
+# test for differences in ultradian rhythm strength 
+complete_dat$Treatment<-relevel(complete_dat$Treatment,"Dark")
+m1 <- lme(ultradian_strength ~ Treatment ,random=~1|Origin/Species,data=complete_dat)
+summary(m1)
+complete_dat$Treatment<-relevel(complete_dat$Treatment,"LD")
+m1 <- lme(ultradian_strength ~ Treatment ,random=~1|Origin/Species,data=complete_dat)
+summary(m1)
+
+
+# test for differences in the dominant period of ultradian rhythms
+complete_dat$Treatment<-relevel(complete_dat$Treatment,"Dark")
+m1 <- lme(ultradian_period ~ Treatment ,random=~1|Origin/Species,data=complete_dat)
+summary(m1)
+complete_dat$Treatment<-relevel(complete_dat$Treatment,"LD")
+m1 <- lme(ultradian_period ~ Treatment ,random=~1|Origin/Species,data=complete_dat)
+summary(m1)
+```
+
+# This section tests for an association between the time of day in the LD treatment (day/night) and 1. the mean activity level of colonies, 2. the dominant ultradian period of colonies, and 3. the ultradian strength of colonies
+
+```{r, echo=TRUE, error=FALSE, warning=FALSE, message=FALSE}
+LD_PP_reduce <- read.csv("Circadian_Table_S2.csv", header=T)
+
+tlong <- subset(LD_PP_reduce, Species == "Temnothorax longispinosus")
+m1 <- lme(photoactive ~ Time_of_day ,random=~1|Colony,data=tlong)
+summary(m1)
+
+tsten <- subset(LD_PP_reduce, Species == "Temnothorax stenotyle")
+m1 <- lme(photoactive ~ Time_of_day ,random=~1|Colony,data=tsten)
+summary(m1)
+
+mp <- subset(LD_PP_reduce, Species == "Myrmica punctiventris")
+m1 <- lme(photoactive ~ Time_of_day ,random=~1|Colony,data=mp)
+summary(m1)
+
+mea <- subset(LD_PP_reduce, Species == "Myrmecina americana")
+m1 <- lme(photoactive ~ Time_of_day ,random=~1|Colony,data=mea)
+summary(m1)
+
+tsess <- subset(LD_PP_reduce, Species == "Tapinoma sessile")
+m1 <- lme(photoactive ~ Time_of_day ,random=~1|Colony,data=tsess)
+summary(m1)
+
+Lcan <- subset(LD_PP_reduce, Species == "Leptothorax AF-can")
+m1 <- lme(photoactive ~ Time_of_day ,random=~1|Colony,data=Lcan)
+summary(m1)
+
+
+# Photoperiod activity LME
+
+m1 <- lme(photoactive ~ Time_of_day ,random=~1|Species/Colony,data=LD_PP_reduce)
+summary(m1)
+
+
+# Photoperiod ultradian period LME
+
+m1 <- lme(periodpp_rescaled ~ Time_of_day ,random=~1|Species/Colony,data=LD_PP_reduce)
+summary(m1)
+
+
+# Photoperiod ultradian rhythm strength LME
+
+m1 <- lme(waveletpp_rescaled ~ Time_of_day ,random=~1|Species/Colony,data=LD_PP_reduce)
+summary(m1)
+```
