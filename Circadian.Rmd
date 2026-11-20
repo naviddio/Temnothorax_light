@@ -1,7 +1,7 @@
 ---
 title: "Ant light regime analysis"
 author: "Doering, Prebus"
-date: "06/01/2026"
+date: "11/20/2026"
 output: html_document
 ---
   
@@ -18,21 +18,41 @@ complete_dat$Treatment<-as.factor(complete_dat$Treatment)
 ```
 
 
-## Test for differences beween treatments 
+## Test for differences between treatments 
 ```{r, echo=TRUE, error=FALSE, warning=FALSE, message=FALSE}
 library(nlme)
 complete_dat$Treatment<-relevel(complete_dat$Treatment,"Dark")
 m1 <- lme(circadian_strength ~ Treatment ,random=~1|Origin/Species,data=complete_dat)
 summary(m1)
+anova(m1)
+v<-VarCorr(m1)
+v <- as.numeric(v[, "Variance"])
+v <- v[!is.na(v)]
+v <- 100 * v / sum(v)
+names(v) <- c("Origin", "Species nested in Origin", "Residual")
+random_effect_variance_percentages<-v
+random_effect_variance_percentages
+
 complete_dat$Treatment<-relevel(complete_dat$Treatment,"LD")
 m1 <- lme(circadian_strength ~ Treatment ,random=~1|Origin/Species,data=complete_dat)
 summary(m1)
+
+
 
 
 # test for differences in ultradian rhythm strength 
 complete_dat$Treatment<-relevel(complete_dat$Treatment,"Dark")
 m1 <- lme(ultradian_strength ~ Treatment ,random=~1|Origin/Species,data=complete_dat)
 summary(m1)
+anova(m1)
+v<-VarCorr(m1)
+v <- as.numeric(v[, "Variance"])
+v <- v[!is.na(v)]
+v <- 100 * v / sum(v)
+names(v) <- c("Origin", "Species nested in Origin", "Residual")
+random_effect_variance_percentages<-v
+random_effect_variance_percentages
+
 complete_dat$Treatment<-relevel(complete_dat$Treatment,"LD")
 m1 <- lme(ultradian_strength ~ Treatment ,random=~1|Origin/Species,data=complete_dat)
 summary(m1)
@@ -42,6 +62,15 @@ summary(m1)
 complete_dat$Treatment<-relevel(complete_dat$Treatment,"Dark")
 m1 <- lme(ultradian_period ~ Treatment ,random=~1|Origin/Species,data=complete_dat)
 summary(m1)
+anova(m1)
+v<-VarCorr(m1)
+v <- as.numeric(v[, "Variance"])
+v <- v[!is.na(v)]
+v <- 100 * v / sum(v)
+names(v) <- c("Origin", "Species nested in Origin", "Residual")
+random_effect_variance_percentages<-v
+random_effect_variance_percentages
+
 complete_dat$Treatment<-relevel(complete_dat$Treatment,"LD")
 m1 <- lme(ultradian_period ~ Treatment ,random=~1|Origin/Species,data=complete_dat)
 summary(m1)
@@ -83,6 +112,66 @@ summary(m1)
 complete_dat$Treatment<-relevel(complete_dat$Treatment,"Dark")
 m1 <- lme(ultradian_period ~ Treatment ,random=~1|Origin/Species,data=complete_dat)
 summary(m1)
+complete_dat$Treatment<-relevel(complete_dat$Treatment,"LD")
+m1 <- lme(ultradian_period ~ Treatment ,random=~1|Origin/Species,data=complete_dat)
+summary(m1)
+```
+
+## Test for differences between treatments (include only T. longispinosus)
+```{r, echo=TRUE, error=FALSE, warning=FALSE, message=FALSE}
+dat <- read.csv("Circadian_Table_S1.csv", header=T)
+complete_dat<-na.omit(dat)
+complete_dat <- subset(complete_dat, Species == "Temnothorax longispinosus") 
+complete_dat$Treatment<-as.factor(complete_dat$Treatment)
+
+complete_dat$Treatment<-relevel(complete_dat$Treatment,"Dark")
+m1 <- lme(circadian_strength ~ Treatment ,random=~1|Origin/Species,data=complete_dat)
+summary(m1)
+anova(m1)
+v<-VarCorr(m1)
+v <- as.numeric(v[, "Variance"])
+v <- v[!is.na(v)]
+v <- 100 * v / sum(v)
+names(v) <- c("Origin", "Species nested in Origin", "Residual")
+random_effect_variance_percentages<-v
+random_effect_variance_percentages
+
+complete_dat$Treatment<-relevel(complete_dat$Treatment,"LD")
+m1 <- lme(circadian_strength ~ Treatment ,random=~1|Origin/Species,data=complete_dat)
+summary(m1)
+
+
+# test for differences in ultradian rhythm strength 
+complete_dat$Treatment<-relevel(complete_dat$Treatment,"Dark")
+m1 <- lme(ultradian_strength ~ Treatment ,random=~1|Origin/Species,data=complete_dat)
+summary(m1)
+anova(m1)
+v<-VarCorr(m1)
+v <- as.numeric(v[, "Variance"])
+v <- v[!is.na(v)]
+v <- 100 * v / sum(v)
+names(v) <- c("Origin", "Species nested in Origin", "Residual")
+random_effect_variance_percentages<-v
+random_effect_variance_percentages
+
+complete_dat$Treatment<-relevel(complete_dat$Treatment,"LD")
+m1 <- lme(ultradian_strength ~ Treatment ,random=~1|Origin/Species,data=complete_dat)
+summary(m1)
+
+
+# test for differences in the dominant period of ultradian rhythms
+complete_dat$Treatment<-relevel(complete_dat$Treatment,"Dark")
+m1 <- lme(ultradian_period ~ Treatment ,random=~1|Origin/Species,data=complete_dat)
+summary(m1)
+anova(m1)
+v<-VarCorr(m1)
+v <- as.numeric(v[, "Variance"])
+v <- v[!is.na(v)]
+v <- 100 * v / sum(v)
+names(v) <- c("Origin", "Species nested in Origin", "Residual")
+random_effect_variance_percentages<-v
+random_effect_variance_percentages
+
 complete_dat$Treatment<-relevel(complete_dat$Treatment,"LD")
 m1 <- lme(ultradian_period ~ Treatment ,random=~1|Origin/Species,data=complete_dat)
 summary(m1)
@@ -134,4 +223,77 @@ summary(m1)
 
 m1 <- lme(waveletpp_rescaled ~ Time_of_day ,random=~1|Species/Colony,data=LD_PP_reduce)
 summary(m1)
+```
+
+
+# This section tests for an association between the time of day in the LD treatment (day/night) and 1. the mean activity level of colonies, 2. the dominant ultradian period of colonies, and 3. the ultradian strength of T. longispinosus colonies
+
+
+```{r, echo=TRUE, error=FALSE, warning=FALSE, message=FALSE}
+LD_PP_reduce <- read.csv("Circadian_Table_S2.csv", header=T)
+
+tlong <- subset(LD_PP_reduce, Species == "Temnothorax longispinosus")
+
+# Photoperiod activity LME
+
+m1 <- lme(photoactive ~ Time_of_day ,random=~1|Species/Colony,data=tlong)
+summary(m1)
+
+
+# Photoperiod ultradian period LME
+
+m1 <- lme(periodpp_rescaled ~ Time_of_day ,random=~1|Species/Colony,data=tlong)
+summary(m1)
+
+
+# Photoperiod ultradian rhythm strength LME
+
+m1 <- lme(waveletpp_rescaled ~ Time_of_day ,random=~1|Species/Colony,data=tlong)
+summary(m1)
+```
+
+
+
+## Test for effects of colony size
+```{r, echo=TRUE, error=FALSE, warning=FALSE, message=FALSE}
+dat <- read.csv("Circadian_Table_S1.csv", header=T)
+complete_dat<-na.omit(dat)
+complete_dat$Treatment<-as.factor(complete_dat$Treatment)
+
+dark<-subset(complete_dat, Treatment == "Dark")
+LD<-subset(complete_dat, Treatment == "LD")
+light<-subset(complete_dat, Treatment == "Light")
+
+# test for differences in colony size across treatments 
+complete_dat$Treatment<-relevel(complete_dat$Treatment,"Dark")
+m1 <- lme(Colony_size ~ Treatment ,random=~1|Origin/Species,data=complete_dat)
+summary(m1)
+anova(m1)
+
+
+
+
+# test for effects of colony size on rhythm traits across treatments 
+m1 <- lme(ultradian_strength ~ Colony_size ,random=~1|Origin/Species,data=dark)
+summary(m1)
+m1 <- lme(circadian_strength ~ Colony_size ,random=~1|Origin/Species,data=dark)
+summary(m1)
+m1 <- lme(ultradian_period ~ Colony_size ,random=~1|Origin/Species,data=dark)
+summary(m1)
+
+m1 <- lme(ultradian_strength ~ Colony_size ,random=~1|Origin/Species,data=LD)
+summary(m1)
+m1 <- lme(circadian_strength ~ Colony_size ,random=~1|Origin/Species,data=LD)
+summary(m1)
+m1 <- lme(ultradian_period ~ Colony_size ,random=~1|Origin/Species,data=LD)
+summary(m1)
+
+m1 <- lme(ultradian_strength ~ Colony_size ,random=~1|Origin/Species,data=light)
+summary(m1)
+m1 <- lme(circadian_strength ~ Colony_size ,random=~1|Origin/Species,data=light)
+summary(m1)
+m1 <- lme(ultradian_period ~ Colony_size ,random=~1|Origin/Species,data=light)
+summary(m1)
+
+
 ```
